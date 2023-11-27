@@ -13,7 +13,7 @@ var WebpackReloadPlugin: boolean = false;
   const {runtime, tabs} = chrome;
   const logger = (msg: string, level: string = 'info') => console[level]('[ WCER: '+msg+' ]');
   const manifest = ( runtime && runtime.getManifest ) ? runtime.getManifest() : undefined;
-  var path = (manifest? manifest.name+' | ' : '')+(name || filename);
+    var path = (manifest? manifest.name+' | ' : '')+(name || filename);
   if (path.length > 43) path = path.slice(0, 20) + '...' + path.slice(-20);
 
   function init() {
@@ -39,14 +39,14 @@ var WebpackReloadPlugin: boolean = false;
     socket.onmessage = ({data:json}) => {
       const {type, data} = JSON.parse(json);
       if (runtime.reload && type === 'restart') {
-        send('restart', 'successfully restart')
-        runtime.reload();
-        runtime.restart();
+      send('restart', 'successfully restart')
+      runtime.reload();
+      runtime.restart();
       }
       if(type === 'reload' && id === data.id) {
         send('reloaded', 'successfully reloaded');
         window.location.reload();
-      }
+            }
     }
   
     socket.onclose = ({code}) => {
@@ -60,7 +60,7 @@ var WebpackReloadPlugin: boolean = false;
     window.onbeforeunload = () => socket.close()
   }
   !WebpackReloadPlugin ? init() : logger('WebpackReloadPlugin: Socket already started !');
-})(chrome, window);
+  })(chrome, window);
 /* ----------------------------------------------- */
 /* End of Webpack Chrome Hot Extension Middleware  */
 /* ----------------------------------------------- */

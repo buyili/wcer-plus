@@ -21,20 +21,28 @@ export default class HotReloaderServer {
   }
   private handleUpgrade(req, socket, head) {
     if (!websocket.isWebSocket(req)) return;
+    
+    socket.on('error', err => error(err.message))
+    
     let driver = websocket.http(req)
     let id = req.url.match(/^\/([^\/]*)/)[1]
     driver.io.write(head)
     this.sockets[id] = driver
     socket.pipe(driver.io).pipe(socket)
     driver.messages.on('data', data => this.message(data, id))
+    driver.on('error', err => error(err.message))
     driver.on('close', () => delete this.sockets[id])
     driver.start()
   }
   private message (json: string, id: string) {
-    let {type, data} = JSON.parse(json)
-    if(type === 'error') return error(`${data}`)
-    if(type === 'warn') return warn(`${data}`)
-    info(`${data}`)
+    try {
+      let {type, data} = JSON.parse(json)
+      if(type === 'error') return error(`${data}`)
+      if(type === 'warn') return warn(`${data}`)
+      info(`${data}`)
+    } catch (e) {
+      return error(e.message)
+    }
   }
   sign(type: string, data: any, sockets?: Array<number> | number): Promise<any> {
     if(typeof sockets !== 'undefined') {

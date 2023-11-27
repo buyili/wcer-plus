@@ -1,4 +1,5 @@
-declare type Options = { port: number, manifest: string }
+declare type EntryOption = { filename: string, pattern: RegExp, service_worker: Boolean }
+declare type Options = { port: number, manifest: string, entryOptions?: Array<EntryOption> }
 declare interface Source {
   source();
   size(): number;

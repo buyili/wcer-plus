@@ -4,7 +4,7 @@ import {info, error} from "./logger"
 import {merge, template} from "lodash"
 import AbstractPlugin from "./abstractPlugin"
 import {ConcatSource} from "webpack-sources"
-import {requirePath} from "./tools"
+import {findEntryOption, requirePath} from "./tools"
 import * as client from "raw-loader!./client.ts"
 
 let chunkVersions: object = {}
@@ -13,12 +13,14 @@ let manifestTimestamp: number
 export default class ReloadPlugin extends AbstractPlugin {
   private port: number
   private server: Server | null = null
-  private manifest: Manifest
+  private manifest: chrome.runtime.ManifestV3
   private manifestPath: string
-  constructor({port, manifest}: Options) {
+  private entryOptions: Array<EntryOption>
+  constructor({port, manifest, entryOptions}: Options) {
     super();
     this.port = port || 9090 
     this.manifestPath = manifest || null
+    this.entryOptions = entryOptions || null
   }
   sourceFactory(...sources): Source {
     return new ConcatSource(...sources)
@@ -43,17 +45,22 @@ export default class ReloadPlugin extends AbstractPlugin {
     let assets = chunks.reduce((res, chunk) => {
       let [filename] = chunk.files;
       if (/\.js$/.test(filename)) {
-        let source = template(client)({
-          filename, 
-          id: chunk.id,
-          name: chunk.name || null,
-          WSHost
-        })
-        res[filename] = this.sourceFactory(source, comp.assets[filename])
+        let entryOption = findEntryOption(this.entryOptions, filename)
+        if(entryOption && entryOption.service_worker){
+          console.log();
+        } else {
+          let source = template(client)({
+            filename, 
+            id: chunk.id,
+            name: chunk.name || null,
+            WSHost
+          })
+          res[filename] = this.sourceFactory(source, comp.assets[filename])
+        }
       }
       return res
     }, {})
-    if(!background ||!(background.page || background.scripts)) {
+    if(!background ||!(background.service_worker)) {
       let scripts: string ='background.reload.js';
       let source = template(client)({
         filename: [scripts],
@@ -61,7 +68,7 @@ export default class ReloadPlugin extends AbstractPlugin {
         name: scripts,
         WSHost
       })
-      this.manifest.background = {scripts:[scripts], persistent: false}
+      this.manifest.background = {service_worker:scripts}
       assets[scripts] = { 
         source: () => source, 
         size: () => source.length 
@@ -72,7 +79,7 @@ export default class ReloadPlugin extends AbstractPlugin {
   triggered (comp, done) {
     if(!this.server || !this.manifest) return done();
     let { content_scripts, background } = this.manifest;
-    let scripts = background.scripts ? background.scripts : [];
+    let scripts = background.service_worker ? [background.service_worker] : [];
     if(content_scripts && content_scripts.length) {
       content_scripts.forEach(content => scripts = scripts.concat(content.js));
     }

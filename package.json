@@ -1,25 +1,25 @@
 {
-  "name": "wcer",
-  "version": "1.0.3",
+  "name": "wcer-plus",
+  "version": "1.0.4",
   "private": false,
   "description": "Watch for changes and force the reload of the chrome extension",
   "main": "build/index.js",
   "types": "typings/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git://github.com/YuraDev/wcer.git"
+    "url": "git://github.com/buyili/wcer-plus.git"
   },
   "scripts": {
     "pro": "webpack",
     "dev": "webpack --watch",
     "client": "webpack --color --config client/webpack.config.js"
   },
-  "author": "Zaporozhets Yura <works.yura@gmail.com>",
+  "author": "buyili <l1132989278@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/YuraDev/wcer/issues"
+    "url": "https://github.com/buyili/wcer-plus/issues"
   },
-  "homepage": "https://github.com/YuraDev/wcer#readme",
+  "homepage": "https://github.com/buyili/wcer-plus#readme",
   "keywords": [
     "webpack",
     "plugin",
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@types/chalk": "^2.2.0",
-    "@types/chrome": "^0.0.49",
+    "@types/chrome": "^0.0.253",
     "@types/lodash": "^4.14.65",
     "@types/node": "^8.5.1",
     "@types/webpack": "^3.0.13",

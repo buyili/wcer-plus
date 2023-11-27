@@ -12,3 +12,11 @@ export function requirePath(filename:string):any {
   return mod.exports
 }
 
+export function findEntryOption(entryOptions: Array<EntryOption>, filename: string){
+  if(!entryOptions) return null
+  return entryOptions.find(item=>{
+    if(item.filename && filename.indexOf(item.filename) != -1) return true
+    if(item.pattern && item.pattern.test(filename)) return true
+    return false
+  })
+}
